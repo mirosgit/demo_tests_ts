@@ -5,7 +5,9 @@ Playwright + TypeScript + Cucumber (BDD) automation framework example.
 ## Application Under Test
 - https://www.saucedemo.com/
 
-## Setup (Docker)
+## Project Setup
+
+### Docker (Recommended)
 1) Build image
 
 ```bash
@@ -15,10 +17,12 @@ docker build -t demo_tests_ts .
 2) Run tests
 
 ```bash
-docker run --rm --env-file .env -e BROWSER=chromium -v "$(pwd)/reports:/work/reports" demo_tests_ts
+docker run --rm --env-file .env -e BROWSER=chromium -e ALLURE_OPEN=true -e ALLURE_PORT=5050 -p 0:5050 -v "$(pwd)/reports:/work/reports" demo_tests_ts
 ```
 
-## Setup (Local)
+Then open the url=http://localhost:5050.
+
+### Local
 1) Install dependencies
 
 ```bash
@@ -29,6 +33,24 @@ npm install
 
 ```bash
 npx playwright install
+```
+
+3) Run tests to generate results:
+
+```bash
+npm test
+```
+
+4) Generate the HTML report:
+
+```bash
+npm run report:generate
+```
+
+5) Open the report:
+
+```bash
+npm run report:open
 ```
 
 ## Run Tests
@@ -54,60 +76,6 @@ Set `PARALLEL=1` or `--parallel 1` to force single-threaded runs.
 Console output uses the default `progress` formatter. A copy of the run log is saved to
 `reports/cucumber.log`.
 
-## Docker
-Build the image:
-
-```bash
-docker build -t demo_tests_ts .
-```
-
-Run tests (headless inside the container). This also generates the Allure HTML report in `reports/allure-report`:
-
-```bash
-docker run --rm --env-file .env -e BROWSER=chromium -v "$(pwd)/reports:/work/reports" demo_tests_ts
-```
-
-Note: the Playwright image ships with Chromium, so use `BROWSER=chromium` in Docker.
-
-To automatically serve the report after the run:
-
-```bash
-docker run --rm --env-file .env -e BROWSER=chromium -e ALLURE_OPEN=true -e ALLURE_PORT=5050 -p 5050:5050 -v "$(pwd)/reports:/work/reports" demo_tests_ts
-```
-
-Then open `http://localhost:5050` on the host.
-
-If the port is already taken, map a random host port:
-
-```bash
-docker run --rm --env-file .env -e BROWSER=chromium -e ALLURE_OPEN=true -e ALLURE_PORT=5050 -p 0:5050 -v "$(pwd)/reports:/work/reports" demo_tests_ts
-```
-
-Check the mapped port:
-
-```bash
-docker ps --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}"
-```
-
-## Allure Report
-1) Run tests to generate results:
-
-```bash
-npm test
-```
-
-2) Generate the HTML report:
-
-```bash
-npm run report:generate
-```
-
-3) Open the report:
-
-```bash
-npm run report:open
-```
-
 ## Environment Configuration
 Create a `.env` file (see `.env.example`) for URL and credentials:
 
@@ -131,7 +99,7 @@ overridden via environment variables if needed:
 - `TIMEOUT_MS` (ms)
 - `FAKER_SEED` (number, optional)
 
-## Project Structure
+## Framework Structure
 - `features/` - Gherkin feature files
 - `src/steps/` - Step definitions (test logic)
 - `src/pages/` - Page Objects (page logic, grouped by domain)
@@ -144,7 +112,7 @@ Key scaling helpers:
 - `src/support/pageFactory.ts` - Page Object registry (single instance per page)
 - `src/support/scenarioContext.ts` - Lightweight scenario state store
 
-## Notes / Assumptions
+## Assumptions / Simplifications
 - The demo site already provides stable selectors and test users.
 - Defaults target the standard_user account on SauceDemo.
 - The invalid login scenario uses a valid username with an invalid password by default.
